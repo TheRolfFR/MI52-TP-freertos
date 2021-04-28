@@ -39,8 +39,8 @@ void T2( void * pvParameters );
   */
 int main(void)
 {
-	BaseType_t xReturned0, xReturned1;
-	TaskHandle_t xHandle0 = 0, xHandle1 = 0;
+	BaseType_t xReturned0;
+	TaskHandle_t xHandle0 = 0;
 
 	/*priority grouping 4 bits for preempt priority 0 bits for subpriority
 	 * (No Subpriority) for FreeRTOS*/
@@ -59,23 +59,14 @@ int main(void)
 	 * in FreeRTOSConfig.h
 	 */
 
-	// on a créé notre première tache pour allumer la led
+	// première tache pour faire clignoter la led
     xReturned0 = xTaskCreate(
                     T0,       /* Function that implements the task. */
-                    "Allumer led",          /* Text name for the task. */
+                    "Clignoter led",          /* Text name for the task. */
                     STACK_SIZE,      /* Stack size in words, not bytes. */
                     ( void * ) 0,    /* Parameter passed into the task. */
                     tskIDLE_PRIORITY+7,/* Priority at which the task is created. */
                     &xHandle0 );      /* Used to pass out the created task's handle. */
-
-    // on a créé notre seconde tache pour éteindre la led
-    xReturned1 = xTaskCreate(
-                    T1,       /* Function that implements the task. */
-                    "Eteindre led",          /* Text name for the task. */
-                    STACK_SIZE,      /* Stack size in words, not bytes. */
-                    ( void * ) 0,    /* Parameter passed into the task. */
-                    tskIDLE_PRIORITY+7,/* Priority at which the task is created. */
-                    &xHandle1 );      /* Used to pass out the created task's handle. */
 
     BaseType_t helloReturnTasks[2];
     TaskHandle_t handleHelloTasks[2] = {0};
@@ -96,7 +87,7 @@ int main(void)
                         &(handleHelloTasks[i]) ); // manage task with handle
     }
 
-    if( xReturned0 == pdPASS && xReturned1 == pdPASS && helloReturnTasks[0] == pdPASS && helloReturnTasks[1] == pdPASS){
+    if( xReturned0 == pdPASS && helloReturnTasks[0] == pdPASS && helloReturnTasks[1] == pdPASS){
         /* The task was created.  The task's handle can be used
          * to delete the task. : vTaskDelete( xHandle ); */
     }else{
@@ -121,32 +112,23 @@ int main(void)
  */
 void T0( void * pvParameters )
 {
+	TickType_t tick = xTaskGetTickCount();
 	// ininite loop :
 	for( ;; ){
 		// allumer led
-		GPIOA->ODR |= GPIO_ODR_OD5;
-		taskENTER_CRITICAL();
-		USART2_Transmit("jour\r\n", sizeof("jour\r\n"));
-		taskEXIT_CRITICAL();
-		vTaskDelay(1);
-	}
-}
+		uint8_t state = !(GPIOA->ODR & GPIO_ODR_OD5_Msk);
+		GPIOA->ODR &= ~(GPIOA->ODR & GPIO_ODR_OD5_Msk);
+		GPIOA->ODR |= state << GPIO_ODR_OD5_Pos;
 
-/**
- * @brief	Task T1
- * @param	parameters given @ creation
- * @retval	none (should not return)
- */
-void T1( void * pvParameters )
-{
-	// ininite loop :
-	for( ;; ){
-		// eteindre led
-		GPIOA->ODR &= ~(GPIO_ODR_OD5_Msk);
 		taskENTER_CRITICAL();
-		USART2_Transmit("nuit\r\n", sizeof("nuit\r\n"));
+		if(state) {
+			USART2_Transmit((uint8_t*) "jour\r\n", sizeof("jour\r\n"));
+		} else {
+			USART2_Transmit((uint8_t*) "nuit\r\n", sizeof("nuit\r\n"));
+		}
 		taskEXIT_CRITICAL();
-		vTaskDelay(1);
+
+		vTaskDelayUntil(&tick, 50);
 	}
 }
 
