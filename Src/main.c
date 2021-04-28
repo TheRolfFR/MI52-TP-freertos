@@ -65,7 +65,7 @@ int main(void)
                     "Allumer led",          /* Text name for the task. */
                     STACK_SIZE,      /* Stack size in words, not bytes. */
                     ( void * ) 0,    /* Parameter passed into the task. */
-                    tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
+                    tskIDLE_PRIORITY+7,/* Priority at which the task is created. */
                     &xHandle0 );      /* Used to pass out the created task's handle. */
 
     // on a créé notre seconde tache pour éteindre la led
@@ -74,7 +74,7 @@ int main(void)
                     "Eteindre led",          /* Text name for the task. */
                     STACK_SIZE,      /* Stack size in words, not bytes. */
                     ( void * ) 0,    /* Parameter passed into the task. */
-                    tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
+                    tskIDLE_PRIORITY+7,/* Priority at which the task is created. */
                     &xHandle1 );      /* Used to pass out the created task's handle. */
 
     BaseType_t helloReturnTasks[2];
