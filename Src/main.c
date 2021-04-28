@@ -120,13 +120,13 @@ void T0( void * pvParameters )
 		GPIOA->ODR &= ~(GPIOA->ODR & GPIO_ODR_OD5_Msk);
 		GPIOA->ODR |= state << GPIO_ODR_OD5_Pos;
 
-		taskENTER_CRITICAL();
+		vTaskSuspendAll();
 		if(state) {
 			USART2_Transmit((uint8_t*) "jour\r\n", sizeof("jour\r\n"));
 		} else {
 			USART2_Transmit((uint8_t*) "nuit\r\n", sizeof("nuit\r\n"));
 		}
-		taskEXIT_CRITICAL();
+		xTaskResumeAll();
 
 		vTaskDelayUntil(&tick, 50);
 	}
@@ -155,9 +155,9 @@ void T2( void * pvParameters )
 	// ininite loop :
 	for( ;; ){
 		// Afficher message polling
-		taskENTER_CRITICAL();
+		vTaskSuspendAll();
 		USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
-		taskEXIT_CRITICAL();
+		xTaskResumeAll();
 	}
 }
 
