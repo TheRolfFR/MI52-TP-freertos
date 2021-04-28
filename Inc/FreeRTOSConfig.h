@@ -14,7 +14,7 @@ void assert_failed(char* file, uint32_t line);
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP	6 // Suppress Tick only if sup to 6 tick
 #define configCPU_CLOCK_HZ                      SystemCoreClock
 #define configSYSTICK_CLOCK_HZ					(SystemCoreClock/8)//use prescaler
-#define configTICK_RATE_HZ                      100	// tick rate in Hz
+#define configTICK_RATE_HZ                      10000	// tick rate in Hz
 #define configMAX_PRIORITIES                    31
 #define configMINIMAL_STACK_SIZE                128	//in configSTACK_DEPTH_TYPE
 #define configMAX_TASK_NAME_LEN                 16
