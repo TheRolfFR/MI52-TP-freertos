@@ -57,16 +57,19 @@ int main(void)
 	 * in FreeRTOSConfig.h
 	 */
 
+	// on a créé notre première tache pour allumer la led
     xReturned0 = xTaskCreate(
                     T0,       /* Function that implements the task. */
-                    "T0",          /* Text name for the task. */
+                    "Allumer led",          /* Text name for the task. */
                     STACK_SIZE,      /* Stack size in words, not bytes. */
                     ( void * ) 0,    /* Parameter passed into the task. */
                     tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
                     &xHandle0 );      /* Used to pass out the created task's handle. */
+
+    // on a créé notre seconde tache pour éteindre la led
     xReturned1 = xTaskCreate(
                     T1,       /* Function that implements the task. */
-                    "T1",          /* Text name for the task. */
+                    "Eteindre led",          /* Text name for the task. */
                     STACK_SIZE,      /* Stack size in words, not bytes. */
                     ( void * ) 0,    /* Parameter passed into the task. */
                     tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
