@@ -26,6 +26,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void pin_init(void);
 void T0( void * pvParameters );
+void T1( void * pvParameters );
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -36,8 +37,8 @@ void T0( void * pvParameters );
   */
 int main(void)
 {
-	BaseType_t xReturned;
-	TaskHandle_t xHandle0 = 0;
+	BaseType_t xReturned0, xReturned1;
+	TaskHandle_t xHandle0 = 0, xHandle1 = 0;
 
 	/*priority grouping 4 bits for preempt priority 0 bits for subpriority
 	 * (No Subpriority) for FreeRTOS*/
@@ -56,14 +57,21 @@ int main(void)
 	 * in FreeRTOSConfig.h
 	 */
 
-    xReturned = xTaskCreate(
+    xReturned0 = xTaskCreate(
                     T0,       /* Function that implements the task. */
                     "T0",          /* Text name for the task. */
                     STACK_SIZE,      /* Stack size in words, not bytes. */
                     ( void * ) 0,    /* Parameter passed into the task. */
                     tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
                     &xHandle0 );      /* Used to pass out the created task's handle. */
-    if( xReturned == pdPASS ){
+    xReturned1 = xTaskCreate(
+                    T1,       /* Function that implements the task. */
+                    "T1",          /* Text name for the task. */
+                    STACK_SIZE,      /* Stack size in words, not bytes. */
+                    ( void * ) 0,    /* Parameter passed into the task. */
+                    tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
+                    &xHandle1 );      /* Used to pass out the created task's handle. */
+    if( xReturned0 == pdPASS && xReturned1 == pdPASS){
         /* The task was created.  The task's handle can be used
          * to delete the task. : vTaskDelete( xHandle ); */
     }else{
@@ -90,6 +98,22 @@ void T0( void * pvParameters )
 {
 	// ininite loop :
 	for( ;; ){
+		// allumer led
+		GPIOA->ODR |= GPIO_ODR_OD5;
+	}
+}
+
+/**
+ * @brief	Task T1
+ * @param	parameters given @ creation
+ * @retval	none (should not return)
+ */
+void T1( void * pvParameters )
+{
+	// ininite loop :
+	for( ;; ){
+		// eteindre led
+		GPIOA->ODR &= ~(GPIO_ODR_OD5_Msk);
 	}
 }
 
