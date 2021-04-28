@@ -125,6 +125,10 @@ void T0( void * pvParameters )
 	for( ;; ){
 		// allumer led
 		GPIOA->ODR |= GPIO_ODR_OD5;
+		taskENTER_CRITICAL();
+		USART2_Transmit("jour\r\n", sizeof("jour\r\n"));
+		taskEXIT_CRITICAL();
+		vTaskDelay(1);
 	}
 }
 
@@ -139,6 +143,10 @@ void T1( void * pvParameters )
 	for( ;; ){
 		// eteindre led
 		GPIOA->ODR &= ~(GPIO_ODR_OD5_Msk);
+		taskENTER_CRITICAL();
+		USART2_Transmit("nuit\r\n", sizeof("nuit\r\n"));
+		taskEXIT_CRITICAL();
+		vTaskDelay(1);
 	}
 }
 
@@ -165,7 +173,9 @@ void T2( void * pvParameters )
 	// ininite loop :
 	for( ;; ){
 		// Afficher message polling
+		taskENTER_CRITICAL();
 		USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
+		taskEXIT_CRITICAL();
 	}
 }
 
