@@ -13,6 +13,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include <string.h>
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -27,6 +28,7 @@
 void pin_init(void);
 void T0( void * pvParameters );
 void T1( void * pvParameters );
+void T2( void * pvParameters );
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -74,7 +76,27 @@ int main(void)
                     ( void * ) 0,    /* Parameter passed into the task. */
                     tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
                     &xHandle1 );      /* Used to pass out the created task's handle. */
-    if( xReturned0 == pdPASS && xReturned1 == pdPASS){
+
+    BaseType_t helloReturnTasks[2];
+    TaskHandle_t handleHelloTasks[2] = {0};
+    char name[30] = {0};
+    char number[2] = {0};
+    for(uint8_t i = 0; i < 2; ++i) {
+    	strcpy(name, "Hello task ");
+    	number[0] = '0' + i;
+    	strcat(name, number);
+
+    	// on a créé notre première tache pour allumer la led
+    	helloReturnTasks[i] = xTaskCreate(
+                        T2,       /* Function that implements the task. */
+                        name,          /* Text name for the task. */
+                        STACK_SIZE,      /* Stack size in words, not bytes. */
+                        ( void * ) 2+i,    /* Parameter passed into the task. */
+                        tskIDLE_PRIORITY+6,/* Priority at which the task is created. */
+                        &(handleHelloTasks[i]) ); // manage task with handle
+    }
+
+    if( xReturned0 == pdPASS && xReturned1 == pdPASS && helloReturnTasks[0] == pdPASS && helloReturnTasks[1] == pdPASS){
         /* The task was created.  The task's handle can be used
          * to delete the task. : vTaskDelete( xHandle ); */
     }else{
@@ -117,6 +139,33 @@ void T1( void * pvParameters )
 	for( ;; ){
 		// eteindre led
 		GPIOA->ODR &= ~(GPIO_ODR_OD5_Msk);
+	}
+}
+
+/**
+ * @brief	Task T2
+ * @param	Integer with task index
+ * @retval	none (should not return)
+ */
+void T2( void * pvParameters )
+{
+	// on transforme notre entier en string
+	char number[11] = {0};
+	snprintf(number, 5, "%lu", (uint32_t) pvParameters);
+
+	// on crée notre buffer
+	char helloSentence[30] = "Hello from task ";
+
+	// on ajoute notre nombre a la phrase
+	strcat(helloSentence, number);
+
+	// on ajoute un retour a la ligne
+	strcat(helloSentence, "\r\n");
+
+	// ininite loop :
+	for( ;; ){
+		// Afficher message polling
+		USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
 	}
 }
 
