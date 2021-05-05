@@ -157,7 +157,7 @@ void T2( void * pvParameters )
 	// ininite loop :
 	for( ;; ){
 		// Afficher message polling
-		BaseType_t semTaken = xSemaphoreTake(my_mutex, 0);
+		BaseType_t semTaken = xSemaphoreTake(my_mutex, portMAX_DELAY);
 		if(semTaken == pdTRUE) {
 			USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
 			xSemaphoreGive(my_mutex);
