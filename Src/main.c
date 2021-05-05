@@ -128,7 +128,7 @@ void T0( void * pvParameters )
 		}
 		xTaskResumeAll();
 
-		vTaskDelayUntil(&tick, 50);
+		vTaskDelayUntil(&tick, configTICK_RATE_HZ/2);
 	}
 }
 
