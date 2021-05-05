@@ -24,6 +24,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 volatile SemaphoreHandle_t my_mutex;
+volatile SemaphoreHandle_t my_binary_semaphore;
 
 /* Private function prototypes -----------------------------------------------*/
 void pin_init(void);
@@ -98,6 +99,8 @@ int main(void)
 
     // create mutex
     my_mutex = xSemaphoreCreateMutex();
+    my_binary_semaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(my_binary_semaphore);
 
     printf("start of scheduler \n");
     // start the scheduler, tasks will be started and the
@@ -157,10 +160,11 @@ void T2( void * pvParameters )
 	// ininite loop :
 	for( ;; ){
 		// Afficher message polling
-		BaseType_t semTaken = xSemaphoreTake(my_mutex, portMAX_DELAY);
+		// Attente max pour être sur de l'obtenir
+		BaseType_t semTaken = xSemaphoreTake(my_binary_semaphore, portMAX_DELAY);
 		if(semTaken == pdTRUE) {
 			USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
-			xSemaphoreGive(my_mutex);
+			xSemaphoreGive(my_binary_semaphore);
 		}
 	}
 }
