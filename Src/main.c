@@ -126,7 +126,7 @@ void T0( void * pvParameters )
 		} else {
 			USART2_Transmit((uint8_t*) "nuit\r\n", sizeof("nuit\r\n"));
 		}
-		// xTaskResumeAll();
+		xTaskResumeAll();
 
 		vTaskDelayUntil(&tick, 50);
 	}
