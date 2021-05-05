@@ -23,6 +23,7 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
+volatile SemaphoreHandle_t my_mutex;
 
 /* Private function prototypes -----------------------------------------------*/
 void pin_init(void);
@@ -95,6 +96,9 @@ int main(void)
     	//printf(" not enough memory to create task T0 \n");
     }
 
+    // create mutex
+    my_mutex = xSemaphoreCreateMutex();
+
     printf("start of scheduler \n");
     // start the scheduler, tasks will be started and the
     // function will not return
@@ -120,13 +124,11 @@ void T0( void * pvParameters )
 		GPIOA->ODR &= ~(GPIOA->ODR & GPIO_ODR_OD5_Msk);
 		GPIOA->ODR |= state << GPIO_ODR_OD5_Pos;
 
-		vTaskSuspendAll();
 		if(state) {
 			USART2_Transmit((uint8_t*) "jour\r\n", sizeof("jour\r\n"));
 		} else {
 			USART2_Transmit((uint8_t*) "nuit\r\n", sizeof("nuit\r\n"));
 		}
-		xTaskResumeAll();
 
 		vTaskDelayUntil(&tick, configTICK_RATE_HZ/2);
 	}
@@ -141,7 +143,7 @@ void T2( void * pvParameters )
 {
 	// on transforme notre entier en string
 	char number[11] = {0};
-	snprintf(number, 5, "%lu", (uint32_t) pvParameters);
+	snprintf(number, 10, "%lu", (uint32_t) pvParameters);
 
 	// on crée notre buffer
 	char helloSentence[30] = "Hello from task ";
@@ -155,9 +157,11 @@ void T2( void * pvParameters )
 	// ininite loop :
 	for( ;; ){
 		// Afficher message polling
-		vTaskSuspendAll();
-		USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
-		xTaskResumeAll();
+		BaseType_t semTaken = xSemaphoreTake(my_mutex, 0);
+		if(semTaken == pdTRUE) {
+			USART2_Transmit((uint8_t*) helloSentence, strlen(helloSentence));
+			xSemaphoreGive(my_mutex);
+		}
 	}
 }
 
